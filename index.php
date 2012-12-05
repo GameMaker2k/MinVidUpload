@@ -89,9 +89,9 @@ itm.style.display = "none"; } }
  <body>
 
 <form name="file_upload" id="file_upload" action="index.php" method="post" enctype="multipart/form-data">
-<input type="submit" name="submit" value="Submit" /> <button type="button" onclick="if(typeof uploadid === 'undefined') { uploadid = 1; }; var input = document.createElement('input'); input.type = 'file'; input.name = 'file[]'; input.id = 'file'+uploadid; document.getElementById('file_upload').appendChild(input); var brline = document.createElement('br'); document.getElementById('file_upload').appendChild(brline); uploadid=++uploadid;">Add More</button><br />
+<input type="submit" name="submit" value="Submit" /> <button type="button" onclick="if(typeof uploadid === 'undefined') { uploadid = 1; }; var input0 = document.createElement('input'); input0.type = 'file'; input0.name = 'file[]'; input0.id = 'file'+uploadid; document.getElementById('file_upload').appendChild(input0); input1 = document.createElement('select'); input1.setAttribute('name', 'convert[]'); input1.setAttribute('id', 'convert'+uploadid); input1opt1 = document.createElement('Option'); input1opt1.text = 'Dont Convert'; input1opt1.value = 'off'; input1.add(input1opt1); input1opt2 = document.createElement('Option'); input1opt2.text = 'Convert'; input1opt2.value = 'on'; input1.add(input1opt2); document.getElementById('file_upload').appendChild(input1); input2 = document.createElement('select'); input2.setAttribute('name', 'convertype[]'); input2.setAttribute('id', 'convertype'+uploadid); input2opt1 = document.createElement('Option'); input2opt1.text = 'MP4 File'; input2opt1.value = 'mp4'; input2.add(input2opt1); input2opt2 = document.createElement('Option'); input2opt2.text = 'FLV File'; input2opt2.value = 'flv'; input2.add(input2opt2); document.getElementById('file_upload').appendChild(input2); var brline = document.createElement('br'); document.getElementById('file_upload').appendChild(brline); uploadid=++uploadid;">Add More</button><br />
 <label for="file0">Filename:</label><br />
-<input type="file" name="file[]" id="file0" /><br />
+<input type="file" name="file[]" id="file0" /><select name="convert[]" id="convert0"><option value="off">Dont Convert</option><option value="on">Convert</option></select><select name="convertype[]" id="convertype0"><option value="mp4">MP4 File</option><option value="flv">FLV File</option></select><br />
 </form>
  
 <?php
@@ -114,6 +114,8 @@ echo "\n";
 var_dump($_FILES['file']['size'][$i]);
 echo "</div>\n";
 move_uploaded_file($_FILES['file']['tmp_name'][$i], getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR.$_FILES['file']['name'][$i]); 
+if($_POST['convert'][$i]=="on") { 
+shell_exec($shell." \"".$basewd.DIRECTORY_SEPARATOR."shell".DIRECTORY_SEPARATOR."convert.sh\" \"".getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR.$_FILES['file']['name'][$i]."\" \"".$_POST['convertype'][$i]."\""); }
 @clearstatcache(); } 
 ++$i; }
 chdir(getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR);
