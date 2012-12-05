@@ -19,6 +19,14 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @ini_set("date.timezone","UTC"); 
 @date_default_timezone_set("UTC");
 @clearstatcache();
+if(!file_exists($basewd.DIRECTORY_SEPARATOR."thumbnail")) {
+	mkdir($basewd.DIRECTORY_SEPARATOR."thumbnail"); }
+if(!file_exists($basewd.DIRECTORY_SEPARATOR."uploads")) {
+	mkdir($basewd.DIRECTORY_SEPARATOR."uploads"); }
+if(!file_exists($basewd.DIRECTORY_SEPARATOR."vidlogs")) {
+	mkdir($basewd.DIRECTORY_SEPARATOR."vidlogs"); }
+if(!file_exists($basewd.DIRECTORY_SEPARATOR."vidtmp")) {
+	mkdir($basewd.DIRECTORY_SEPARATOR."vidtmp"); }
 if(!isset($_GET['act'])) { $_GET['act']=null; }
 if(!isset($_GET['filename'])) { $_GET['filename']=null; }
 //if($_GET['act']=="delete") { unlink("./uploads/".$_GET['filename']); }
