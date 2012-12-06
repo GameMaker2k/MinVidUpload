@@ -18,6 +18,13 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @ini_set('zend.ze1_compatibility_mode', 0);
 @ini_set("date.timezone","UTC"); 
 @date_default_timezone_set("UTC");
+$default_opts = array(
+  'http'=>array(
+    'method'=>"GET",
+    'header'=>"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 7.0; en-US; rv:17.0) Gecko/20100101 Firefox/17.0"
+  )
+);
+$default = stream_context_set_default($default_opts);
 @clearstatcache();
 if(!file_exists($basewd.DIRECTORY_SEPARATOR."thumbnail")) {
 	mkdir($basewd.DIRECTORY_SEPARATOR."thumbnail"); }
@@ -93,8 +100,55 @@ itm.style.display = "none"; } }
 <label for="file0">Filename:</label><br />
 <input type="file" name="file[]" id="file0" /><select name="convert[]" id="convert0"><option value="off">Dont Convert</option><option value="on">Convert</option></select><select name="convertype[]" id="convertype0"><option value="mp4">MP4 File</option><option value="flv">FLV File</option></select><br />
 </form>
+
+<form name="file_download" id="file_download" action="index.php" method="post">
+<input type="submit" name="submit" value="Submit" /> <button type="button" onclick="if(typeof uploadid === 'undefined') { downloadid = 1; }; var input0 = document.createElement('input'); input0.type = 'text'; input0.name = 'getvidurl[]'; input0.id = 'getvidurl'+downloadid; document.getElementById('file_download').appendChild(input0);  var input1 = document.createElement('input'); input1.type = 'text'; input1.name = 'getvidfname[]'; input1.id = 'getvidfname'+downloadid; document.getElementById('file_download').appendChild(input1); input2 = document.createElement('select'); input2.setAttribute('name', 'getvidconvert[]'); input2.setAttribute('id', 'getvidconvert'+downloadid); input2opt1 = document.createElement('Option'); input2opt1.text = 'Dont Convert'; input2opt1.value = 'off'; input2.add(input2opt1); input2opt2 = document.createElement('Option'); input2opt2.text = 'Convert'; input2opt2.value = 'on'; input2.add(input2opt2); document.getElementById('file_download').appendChild(input2); input3 = document.createElement('select'); input3.setAttribute('name', 'getvidconvertype[]'); input3.setAttribute('id', 'getvidconvertype'+downloadid); input3opt1 = document.createElement('Option'); input3opt1.text = 'MP4 File'; input3opt1.value = 'mp4'; input3.add(input3opt1); input3opt2 = document.createElement('Option'); input3opt2.text = 'FLV File'; input3opt2.value = 'flv'; input3.add(input3opt2); document.getElementById('file_download').appendChild(input3); var brline = document.createElement('br'); document.getElementById('file_download').appendChild(brline); downloadid=++downloadid;">Add More</button><br />
+<label for="file0">Download URL:</label><br />
+<input type="text" name="getvidurl[]" id="getvidurl0" value="http://" /><input type="text" name="getvidfname[]" id="getvidfname0" value="test.flv" /><select name="getvidconvert[]" id="getvidconvert0"><option value="off">Dont Convert</option><option value="on">Convert</option></select><select name="getvidconvertype[]" id="getvidconvertype0"><option value="mp4">MP4 File</option><option value="flv">FLV File</option></select><br />
+</form>
  
 <?php
+$il=0;
+$maxl=count($_POST['getvidurl'][$il]);
+while($il<=$maxl) {
+if(isset($_POST['getvidurl'][$il])&&($_POST['getvidurl'][$il]!=null&&$_POST['getvidurl'][$il]!=""&&$_POST['getvidurl'][$il]!="http://"&&$_POST['getvidurl'][$il]!="https://")) {
+$getvidheaders=get_headers($_POST['getvidurl'][$il],1);
+while(isset($getvidheaders['Location'])) {
+$_POST['getvidurl'][$il]=$getvidheaders['Location'];
+$getvidheaders=get_headers($_POST['getvidurl'][$il],1); }
+$urlcheck=parse_url($_POST['getvidurl'][$il]); 
+var_dump($urlcheck);
+if(isset($urlcheck['port'])) { echo $urlcheck['port'];
+$getvidfp = fsockopen($urlcheck['host'], $urlcheck['port'], $getviderrno, $getviderrstr, 30); }
+if($urlcheck['scheme']=="http"&&!isset($urlcheck['port'])) { echo $urlcheck['scheme'];
+$getvidfp = fsockopen($urlcheck['host'], 80, $getviderrno, $getviderrstr, 30); }
+if($urlcheck['scheme']=="https"&&!isset($urlcheck['port'])) { echo $urlcheck['scheme'];
+$getvidfp = fsockopen($urlcheck['host'], 443, $getviderrno, $getviderrstr, 30); }
+if (!$getvidfp) {
+    echo $errstr." (".$errno.")<br />\n";
+} else {
+    if(isset($urlcheck['query'])) { 
+    $getvidout = "GET ".$urlcheck['path']."?".$urlcheck['query']." HTTP/1.0\r\n"; }
+    if(!isset($urlcheck['query'])) { 
+    $getvidout = "GET ".$urlcheck['path']." HTTP/1.0\r\n"; }
+    if(isset($urlcheck['port'])) { 
+    $getvidout .= "Host: ".$urlcheck['host'].":".$urlcheck['port']."\r\n"; }
+    if(!isset($urlcheck['port'])) { 
+    $getvidout .= "Host: ".$urlcheck['host']."\r\n"; }
+    $getvidout .= "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 7.0; en-US; rv:17.0) Gecko/20100101 Firefox/17.0\r\n";
+    $getvidout .= "Connection: Close\r\n\r\n";
+    fwrite($getvidfp, $getvidout);
+	$getvidhdle = fopen(getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR.$_POST['getvidfname'][$il], "wb+");
+	$getvidcontent=null;
+    while (!feof($getvidfp)) {
+		$getvidcontent .= fgets($getvidfp, 128); }
+	$getvidcontent = explode("\r\n\r\n", $getvidcontent, 2);
+	fwrite($getvidhdle, $getvidcontent[1], strlen($getvidcontent[1]));
+	fclose($getvidhdle);
+    fclose($getvidfp); }
+    if($_POST['getvidconvert'][$i]=="on") { 
+    shell_exec($shell." \"".$basewd.DIRECTORY_SEPARATOR."shell".DIRECTORY_SEPARATOR."convert.sh\" \"".getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR.$_FILES['file']['name'][$i]."\" \"".$_POST['getvidconvertype'][$i]."\""); } }
+++$il; }
 $i=0;
 $max=count($_FILES['file']['error'])-1;
 while($i<=$max) {
@@ -119,10 +173,10 @@ shell_exec($shell." \"".$basewd.DIRECTORY_SEPARATOR."shell".DIRECTORY_SEPARATOR.
 @clearstatcache(); } 
 ++$i; }
 chdir(getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR);
-var_dump(count(glob("*")));
-if(count(glob("*"))>0) { echo "\n<hr />\n"; }
+if(count(glob("{*.flv,*.mp4}", GLOB_BRACE))>0&&glob("{*.flv,*.mp4}", GLOB_BRACE)==!false) { 
+	echo "\n<hr />\n"; }
 echo "\n<div style=\"white-space: pre-wrap;\">";
-foreach (glob("*") as $filename) {
+foreach (glob("{*.flv,*.mp4}", GLOB_BRACE) as $filename) {
 if(!file_exists($basewd.DIRECTORY_SEPARATOR."thumbnail".DIRECTORY_SEPARATOR.pathinfo($filename, PATHINFO_FILENAME).".png")) { 
 shell_exec($shell." \"".$basewd.DIRECTORY_SEPARATOR."shell".DIRECTORY_SEPARATOR."thumbnail.sh\" \"".getcwd().DIRECTORY_SEPARATOR.$filename."\" \"".round($vidarray['timestamp'] / rand(4, 24), 2)."\""); }
 $vidarray['width']=trim(shell_exec($shell." \"".$basewd.DIRECTORY_SEPARATOR."shell".DIRECTORY_SEPARATOR."getwidth.sh\" \"".getcwd().DIRECTORY_SEPARATOR.$filename."\""));
