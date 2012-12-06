@@ -75,22 +75,24 @@ function _format_bytes($a_bytes)
   <meta name="keywords" content="MinUpload,Minimalist File Upload,Minimalist,File Upload,File,Upload" />
   <meta name="description" content="MinUpload ( Minimalist File Upload ) by Kazuki Przyborowski" />
   <base href="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/" />
-<script type="text/javascript">
-<!--
-function getid(id) {
-var itm;
-itm = document.getElementById(id);
-return itm; }
+  <script type="text/javascript" src="https://test.gamemaker2k.org/test/jwplayer/jwplayer.js"></script>
+  <script type="text/javascript" src="https://test.gamemaker2k.org/test/jwplayer/swfobject.js"></script>
+  <script type="text/javascript">
+  <!--
+  function getid(id) {
+  var itm;
+  itm = document.getElementById(id);
+  return itm; }
 
-function toggletag(id) {
-var itm;
-itm = document.getElementById(id);
-if (itm.style.display == "none") {
-itm.style.display = ""; }
-else {
-itm.style.display = "none"; } }
-//-->
-</script>
+  function toggletag(id) {
+  var itm;
+  itm = document.getElementById(id);
+  if (itm.style.display == "none") {
+  itm.style.display = ""; }
+  else {
+  itm.style.display = "none"; } }
+  //-->
+  </script>
  </head>
 
  <body>
@@ -188,12 +190,17 @@ $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
 ?>
-<div id="Hide<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>" style="display: none;"><a href="javascript:%20return%20false;" onclick="toggletag('Show<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>'); toggletag('Hide<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>');">Hide</a><br /><object type="application/x-shockwave-flash" data="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/mplayer/movie_player.swf" width="<?php echo $vidarray['width']; ?>" height="<?php echo $vidarray['height']; ?>">
-<param name="movie" value="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/mplayer/movie_player.swf" />
-<param name="allowFullScreen" value="true" />
-<param name="FlashVars" value="flv=<?php echo rawurlencode($_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/uploads/".rawurlencode($filename)); ?>&amp;title=<?php echo rawurlencode(pathinfo($filename, PATHINFO_FILENAME)); ?>&amp;startimage=<?php echo rawurlencode($_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/thumbnail/".rawurlencode(pathinfo($filename, PATHINFO_FILENAME).".png")); ?>" />
-</object><br /><a href="javascript:%20return%20false;" onclick="toggletag('Show<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>'); toggletag('Hide<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>');">Hide</a></div>
-<div id="Show<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>"><a href="javascript:%20return%20false;" onclick="toggletag('Show<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>'); toggletag('Hide<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>');">Show</a><br /><img onclick="toggletag('Show<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>'); toggletag('Hide<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>');" src="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/thumbnail/".rawurlencode(pathinfo($filename, PATHINFO_FILENAME).".png"); ?>" alt="<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>" title="<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>" /><br /><a href="javascript:%20return%20false;" onclick="toggletag('Show<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>'); toggletag('Hide<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>');">Show</a></div>
+<div id="<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>">Loading the player...</div>
+<script type="text/javascript">
+    jwplayer("<?php echo str_replace("=", ":", base64_encode(pathinfo($filename, PATHINFO_FILENAME))); ?>").setup({
+        flashplayer: "<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/jwplayer/jwplayer.swf",
+        file: "<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/uploads/".$filename; ?>",
+        image: "<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/thumbnail/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
+		title: "<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>",
+        height: <?php echo $vidarray['height']; ?>,
+        width: <?php echo $vidarray['width']; ?>
+    });
+</script>
 <?php
 echo "[<a href=\"".$_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/index.php?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
