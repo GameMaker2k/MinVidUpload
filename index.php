@@ -79,8 +79,8 @@ function _format_bytes($a_bytes)
   <meta name="keywords" content="MinUpload,Minimalist File Upload,Minimalist,File Upload,File,Upload" />
   <meta name="description" content="MinUpload ( Minimalist File Upload ) by Kazuki Przyborowski" />
   <base href="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/" />
-  <script type="text/javascript" src="https://test.gamemaker2k.org/test/jwplayer/jwplayer.js"></script>
-  <script type="text/javascript" src="https://test.gamemaker2k.org/test/jwplayer/swfobject.js"></script>
+  <script type="text/javascript" src="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/jwplayer/jwplayer.js"></script>
+  <script type="text/javascript" src="<?php echo $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']); ?>/jwplayer/swfobject.js"></script>
   <script type="text/javascript">
   <!--
   function getid(id) {
