@@ -21,7 +21,11 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 $default_opts = array(
   'http'=>array(
     'method'=>"GET",
-    'header'=>"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 7.0; en-US; rv:17.0) Gecko/20100101 Firefox/17.0"
+    'header'=>"User-Agent: ".$_SERVER['HTTP_USER_AGENT']."\r\n".
+              "Accept: ".$_SERVER['HTTP_ACCEPT']."\r\n",
+              "Accept-Language: ".$_SERVER['HTTP_ACCEPT_ENCODING']."\r\n",
+              "Accept-Encoding: ".$_SERVER['HTTP_ACCEPT_LANGUAGE']."\r\n",
+              "Accept-Charset: ".$_SERVER['HTTP_ACCEPT_CHARSET']."\r\n"
   )
 );
 $default = stream_context_set_default($default_opts);
@@ -137,7 +141,11 @@ if (!$getvidfp) {
     $getvidout .= "Host: ".$urlcheck['host'].":".$urlcheck['port']."\r\n"; }
     if(!isset($urlcheck['port'])) { 
     $getvidout .= "Host: ".$urlcheck['host']."\r\n"; }
-    $getvidout .= "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 7.0; en-US; rv:17.0) Gecko/20100101 Firefox/17.0\r\n";
+    $getvidout .= "User-Agent: ".$_SERVER['HTTP_USER_AGENT']."\r\n";
+    $getvidout .= "Accept: ".$_SERVER['HTTP_ACCEPT']."\r\n";
+    $getvidout .= "Accept-Language: ".$_SERVER['HTTP_ACCEPT_ENCODING']."\r\n";
+    $getvidout .= "Accept-Encoding: ".$_SERVER['HTTP_ACCEPT_LANGUAGE']."\r\n";
+    $getvidout .= "Accept-Charset: ".$_SERVER['HTTP_ACCEPT_CHARSET']."\r\n";
     $getvidout .= "Connection: Close\r\n\r\n";
     fwrite($getvidfp, $getvidout);
 	$getvidhdle = fopen(getcwd().DIRECTORY_SEPARATOR."uploads".DIRECTORY_SEPARATOR.$_POST['getvidfname'][$il], "wb+");
