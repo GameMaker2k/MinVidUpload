@@ -69,6 +69,7 @@ $website_info['thumbnail_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."
 $website_info['upload_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."uploads";
 $website_info['vidlog_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."vidlogs";
 $website_info['vidtmp_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."vidtmp";
+$website_info['main_file'] = "index.php";
 if(!file_exists($website_info['main_dir'].DIRECTORY_SEPARATOR."thumbnail")) {
 	mkdir($website_info['main_dir'].DIRECTORY_SEPARATOR."thumbnail"); }
 if(!file_exists($website_info['main_dir'].DIRECTORY_SEPARATOR."uploads")) {
@@ -80,8 +81,15 @@ if(!file_exists($website_info['main_dir'].DIRECTORY_SEPARATOR."vidtmp")) {
 if(!isset($_GET['act'])&&isset($_GET['id'])) { $_GET['act'] = "view"; }
 if(!isset($_GET['act'])) { $_GET['act'] = "upload"; }
 if($_GET['act']=="view"&&!isset($_GET['id'])) { $_GET['act'] = "upload"; }
-if(!isset($_GET['filename'])) { $_GET['filename'] = null; }
-//if($_GET['act']=="delete") { unlink("./uploads/".$_GET['filename']); }
+if($_GET['act']=="delete"&&!isset($_GET['filename'])&&isset($_GET['id'])) { 
+	$_GET['filename'] = base64_decode(str_replace(":", "=", $_GET['id'])); }
+if($_GET['act']=="delete"&&isset($_GET['filename'])) { 
+	if(file_exists($website_info['upload_dir'].DIRECTORY_SEPARATOR.$_GET['filename'])) {
+	unlink($website_info['upload_dir'].DIRECTORY_SEPARATOR.$_GET['filename']); }
+	if(file_exists($website_info['thumbnail_dir'].DIRECTORY_SEPARATOR.pathinfo($_GET['filename'], PATHINFO_FILENAME).".png")) {
+	unlink($website_info['thumbnail_dir'].DIRECTORY_SEPARATOR.pathinfo($_GET['filename'], PATHINFO_FILENAME).".png"); } 
+	$_GET['act'] = "upload"; }
+if($_GET['act']=="delete"&&!isset($_GET['filename'])) { $_GET['act'] = "upload"; }
 function _format_bytes($a_bytes)
 {
     if ($a_bytes < 1024) {
@@ -161,13 +169,13 @@ function _format_bytes($a_bytes)
  <body>
 
 <?php if($_GET['act']=="upload") { ?>
-<form name="file_upload" id="file_upload" action="index.php" method="post" enctype="multipart/form-data">
+<form name="file_upload" id="file_upload" action="<?php echo $website_info['main_file']; ?>?act=upload" method="post" enctype="multipart/form-data">
 <input type="submit" name="submit" value="Submit" /> <button type="button" onclick="if(typeof uploadid === 'undefined') { uploadid = 1; }; var input0 = document.createElement('input'); input0.type = 'file'; input0.name = 'file[]'; input0.id = 'file'+uploadid; document.getElementById('file_upload').appendChild(input0); input1 = document.createElement('select'); input1.setAttribute('name', 'convert[]'); input1.setAttribute('id', 'convert'+uploadid); input1opt1 = document.createElement('Option'); input1opt1.text = 'Dont Convert'; input1opt1.value = 'off'; input1.add(input1opt1); input1opt2 = document.createElement('Option'); input1opt2.text = 'Convert'; input1opt2.value = 'on'; input1.add(input1opt2); document.getElementById('file_upload').appendChild(input1); input2 = document.createElement('select'); input2.setAttribute('name', 'convertype[]'); input2.setAttribute('id', 'convertype'+uploadid); input2opt1 = document.createElement('Option'); input2opt1.text = 'MP4 File'; input2opt1.value = 'mp4'; input2.add(input2opt1); input2opt2 = document.createElement('Option'); input2opt2.text = 'FLV File'; input2opt2.value = 'flv'; input2.add(input2opt2); document.getElementById('file_upload').appendChild(input2); var brline = document.createElement('br'); document.getElementById('file_upload').appendChild(brline); uploadid=++uploadid;">Add More</button><br />
 <label for="file0">Filename:</label><br />
 <input type="file" name="file[]" id="file0" /><select name="convert[]" id="convert0"><option value="off">Dont Convert</option><option value="on">Convert</option></select><select name="convertype[]" id="convertype0"><option value="mp4">MP4 File</option><option value="flv">FLV File</option></select><br />
 </form>
 
-<form name="file_download" id="file_download" action="index.php" method="post">
+<form name="file_download" id="file_download" action="<?php echo $website_info['main_file']; ?>?act=upload" method="post">
 <input type="submit" name="submit" value="Submit" /> <button type="button" onclick="if(typeof uploadid === 'undefined') { downloadid = 1; }; var input0 = document.createElement('input'); input0.type = 'text'; input0.name = 'getvidurl[]'; input0.id = 'getvidurl'+downloadid; document.getElementById('file_download').appendChild(input0);  var input1 = document.createElement('input'); input1.type = 'text'; input1.name = 'getvidfname[]'; input1.id = 'getvidfname'+downloadid; document.getElementById('file_download').appendChild(input1); input2 = document.createElement('select'); input2.setAttribute('name', 'getvidconvert[]'); input2.setAttribute('id', 'getvidconvert'+downloadid); input2opt1 = document.createElement('Option'); input2opt1.text = 'Dont Convert'; input2opt1.value = 'off'; input2.add(input2opt1); input2opt2 = document.createElement('Option'); input2opt2.text = 'Convert'; input2opt2.value = 'on'; input2.add(input2opt2); document.getElementById('file_download').appendChild(input2); input3 = document.createElement('select'); input3.setAttribute('name', 'getvidconvertype[]'); input3.setAttribute('id', 'getvidconvertype'+downloadid); input3opt1 = document.createElement('Option'); input3opt1.text = 'MP4 File'; input3opt1.value = 'mp4'; input3.add(input3opt1); input3opt2 = document.createElement('Option'); input3opt2.text = 'FLV File'; input3opt2.value = 'flv'; input3.add(input3opt2); document.getElementById('file_download').appendChild(input3); var brline = document.createElement('br'); document.getElementById('file_download').appendChild(brline); downloadid=++downloadid;">Add More</button><br />
 <label for="file0">Download URL:</label><br />
 <input type="text" name="getvidurl[]" id="getvidurl0" value="http://" /><input type="text" name="getvidfname[]" id="getvidfname0" value="test.flv" /><select name="getvidconvert[]" id="getvidconvert0"><option value="off">Dont Convert</option><option value="on">Convert</option></select><select name="getvidconvertype[]" id="getvidconvertype0"><option value="mp4">MP4 File</option><option value="flv">FLV File</option></select><br />
@@ -257,6 +265,7 @@ preg_match('/.*Duration: ([0-9:]+).*/', $vidarray['mininfo'], $tmp_duration);
 $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
+echo "<a href=\"".$website_info['url']."/".$website_info['main_file']."?id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">View ".htmlentities($filename, ENT_COMPAT | ENT_HTML401, "UTF-8", false)."</a>\n";
 ?>
 <div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>">Loading the player...</div>
 <script type="text/javascript">
@@ -270,7 +279,7 @@ $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimest
     });
 </script>
 <?php
-echo "[<a href=\"".$website_info['url']."/index.php?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$website_info['url']."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
+echo "[<a href=\"".$website_info['url']."/".$website_info['main_file']."?act=delete&amp;id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">Delete</a>] <a href=\"".$website_info['url']."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>">INFO:ATIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", fileatime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>">INFO:SIZE</a>] <a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>"><?php echo filesize($filename)." Bytes =&gt; "._format_bytes(filesize($filename)); ?></a><?php echo "\n";
@@ -305,7 +314,7 @@ $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimest
     //-->
 </script>
 <?php
-echo "[<a href=\"".$website_info['url']."/index.php?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$website_info['url']."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
+echo "[<a href=\"".$website_info['url']."/".$website_info['main_file']."?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$website_info['url']."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>">INFO:ATIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", fileatime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>">INFO:SIZE</a>] <a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>"><?php echo filesize($filename)." Bytes =&gt; "._format_bytes(filesize($filename)); ?></a><?php echo "\n";
