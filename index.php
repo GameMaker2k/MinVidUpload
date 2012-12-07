@@ -48,6 +48,11 @@ header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
 header("Expires: ".gmdate("D, d M Y H:i:s")." GMT");
 output_reset_rewrite_vars();
 @clearstatcache();
+if(!isset($_SERVER["REQUEST_SCHEME"])) {
+if(!isset($_SERVER['HTTPS'])) {
+	$_SERVER["REQUEST_SCHEME"] = "http"; }
+if(isset($_SERVER['HTTPS'])) {
+	$_SERVER["REQUEST_SCHEME"] = "https"; } }
 $website_info['sname'] = "MinVidUpload";
 $website_info['lname'] = "Minimalist Video Uploader";
 $website_info['author'] = "Kazuki Przyborowski";
@@ -77,11 +82,6 @@ if(!isset($_GET['act'])) { $_GET['act'] = "upload"; }
 if($_GET['act']=="view"&&!isset($_GET['id'])) { $_GET['act'] = "upload"; }
 if(!isset($_GET['filename'])) { $_GET['filename'] = null; }
 //if($_GET['act']=="delete") { unlink("./uploads/".$_GET['filename']); }
-if(!isset($_SERVER["REQUEST_SCHEME"])) {
-if(!isset($_SERVER['HTTPS'])) {
-	$_SERVER["REQUEST_SCHEME"] = "http"; }
-if(isset($_SERVER['HTTPS'])) {
-	$_SERVER["REQUEST_SCHEME"] = "https"; } }
 function _format_bytes($a_bytes)
 {
     if ($a_bytes < 1024) {
