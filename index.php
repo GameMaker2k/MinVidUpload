@@ -1,8 +1,22 @@
 <?php
-ob_start("ob_gzhandler");
+/*
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the Revised BSD License.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    Revised BSD License for more details.
+
+    Copyright 2011 iDB Support - http://idb.berlios.de/
+    Copyright 2011 Game Maker 2k - http://gamemaker2k.org/
+
+    $FileInfo: index.php - Last Update: 12/07/2012 Version: 0.2.5 - Author: cooldude2k $
+*/
 // ffmpeg write progress to file
 // http://stackoverflow.com/questions/747982/can-ffmpeg-show-a-progress-bar
 // http://stackoverflow.com/questions/6481210/getting-progress-for-multiple-exec-processes-realtime
+ob_start("ob_gzhandler");
 $shell="/bin/sh";
 @ob_start("ob_gzhandler");
 @ini_set("html_errors", false);
@@ -59,7 +73,10 @@ $website_info['author'] = "Kazuki Przyborowski";
 $website_info['keywords'] = "MinUpload,MinVidUpload,Minimalist Video Upload,Minimalist,Video Upload,Video,Upload";
 $website_info['description'] = "MinVidUpload ( Minimalist Video Upload ) by Kazuki Przyborowski";
 $website_info['fname'] = " ".$website_info['sname']." ( ".$website_info['lname']." ) ";
-$website_info['url'] = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+$website_info['main_url'] = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+$website_info['jwplayer_url'] = $website_info['main_url']."/jwplayer";
+$website_info['thumbnail_url'] = $website_info['main_url']."/thumbnail";
+$website_info['upload_url'] = $website_info['main_url']."/uploads";
 $website_info['charset'] = "UTF-8";
 $website_info['language'] = "en";
 $website_info['main_dir'] = getcwd();
@@ -145,9 +162,10 @@ function _format_bytes($a_bytes)
   <meta http-equiv="P3P" content='CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"' /> 
   <meta http-equiv="P3P" name="CP" content="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT" />
   <meta http-equiv="Expires" content="<?php echo gmdate("D, d M Y H:i:s")." GMT"; ?>" />
-  <base href="<?php echo $website_info['url']; ?>/" />
-  <script type="text/javascript" src="<?php echo $website_info['url']; ?>/jwplayer/jwplayer.js"></script>
-  <script type="text/javascript" src="<?php echo $website_info['url']; ?>/jwplayer/swfobject.js"></script>
+  <base href="<?php echo $website_info['main_url']; ?>/" />
+  <script type="text/javascript" src="<?php echo $website_info['jwplayer_url']; ?>/jquery.js"></script>
+  <script type="text/javascript" src="<?php echo $website_info['jwplayer_url']; ?>/jwplayer.js"></script>
+  <script type="text/javascript" src="<?php echo $website_info['jwplayer_url']; ?>/swfobject.js"></script>
   <script type="text/javascript">
   <!--
   function getid(id) {
@@ -233,7 +251,7 @@ while($i<=$max) {
 if($_FILES['file']['error'][$i]===0) {
 echo "<hr />";
 echo $_FILES['file']['tmp_name'][$i]." => ".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$_FILES['file']['name'][$i]."<br />\n";
-echo "<a href=\"".$website_info['url']."/uploads/".$_FILES['file']['name'][$i]."\" title=\"".$_FILES['file']['name'][$i]."\">".$website_info['url']."/uploads/".$_FILES['file']['name'][$i]."</a><br />\n";
+echo "<a href=\"".$website_info['upload_url']."/".$_FILES['file']['name'][$i]."\" title=\"".$_FILES['file']['name'][$i]."\">".$website_info['upload_url']."/".$_FILES['file']['name'][$i]."</a><br />\n";
 echo "\n<div style=\"white-space: pre-wrap;\">";
 var_dump($_FILES['file']['name'][$i]);
 echo "\n";
@@ -265,21 +283,21 @@ preg_match('/.*Duration: ([0-9:]+).*/', $vidarray['mininfo'], $tmp_duration);
 $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
-echo "<a href=\"".$website_info['url']."/".$website_info['main_file']."?id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">View ".htmlentities($filename, ENT_COMPAT | ENT_HTML401, "UTF-8", false)."</a>\n";
+echo "<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">View ".htmlentities($filename, ENT_COMPAT | ENT_HTML401, "UTF-8", false)."</a>\n";
 ?>
 <div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>">Loading the player...</div>
 <script type="text/javascript">
     jwplayer("<?php echo str_replace("=", ":", base64_encode($filename)); ?>").setup({
-        flashplayer: "<?php echo $website_info['url']; ?>/jwplayer/jwplayer.swf",
-        file: "<?php echo $website_info['url']."/uploads/".$filename; ?>",
-        image: "<?php echo $website_info['url']."/thumbnail/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
+        flashplayer: "<?php echo $website_info['jwplayer_url']; ?>/jwplayer.swf",
+        file: "<?php echo $website_info['upload_url']."/".$filename; ?>",
+        image: "<?php echo $website_info['thumbnail_url']."/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
 		title: "<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>",
         height: <?php echo $vidarray['height']; ?>,
         width: <?php echo $vidarray['width']."\n"; ?>
     });
 </script>
 <?php
-echo "[<a href=\"".$website_info['url']."/".$website_info['main_file']."?act=delete&amp;id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">Delete</a>] <a href=\"".$website_info['url']."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
+echo "[<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?act=delete&amp;id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">Delete</a>] <a href=\"".$website_info['upload_url']."/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>">INFO:ATIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", fileatime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>">INFO:SIZE</a>] <a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>"><?php echo filesize($filename)." Bytes =&gt; "._format_bytes(filesize($filename)); ?></a><?php echo "\n";
@@ -303,9 +321,9 @@ $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimest
 <script type="text/javascript">
     <!--
     jwplayer("<?php echo str_replace("=", ":", base64_encode($filename)); ?>").setup({
-        flashplayer: "<?php echo $website_info['url']; ?>/jwplayer/jwplayer.swf",
-        file: "<?php echo $website_info['url']."/uploads/".$filename; ?>",
-        image: "<?php echo $website_info['url']."/thumbnail/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
+        flashplayer: "<?php echo $website_info['jwplayer_url']; ?>/jwplayer.swf",
+        file: "<?php echo $website_info['upload_url']."/".$filename; ?>",
+        image: "<?php echo $website_info['thumbnail_url']."/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
 		title: "<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>",
         height: <?php echo $vidarray['height']; ?>,
         width: <?php echo $vidarray['width']."\n"; ?>
@@ -314,7 +332,7 @@ $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimest
     //-->
 </script>
 <?php
-echo "[<a href=\"".$website_info['url']."/".$website_info['main_file']."?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$website_info['url']."/uploads/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
+echo "[<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$website_info['upload_url']."/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>">INFO:ATIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", fileatime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>">INFO:SIZE</a>] <a href="javascript:<?php echo rawurlencode("alert('".filesize($filename)." Bytes => "._format_bytes(filesize($filename))."');"); ?>"><?php echo filesize($filename)." Bytes =&gt; "._format_bytes(filesize($filename)); ?></a><?php echo "\n";
