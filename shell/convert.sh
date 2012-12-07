@@ -1,9 +1,9 @@
 #!/bin/sh
 
 scriptdir="$(dirname "${0}")"
-VideoDIR="$(realpath $(dirname "${0}")"/../uploads")"
-VideoTMPDIR="$(realpath $(dirname "${0}")"/../vidtmp")"
-VideoLOGDIR="$(realpath $(dirname "${0}")"/../vidlogs")"
+VideoDIR="$(dirname "${0}")/../uploads"
+VideoTMPDIR="$(dirname "${0}")/../vidtmp"
+VideoLOGDIR="$(dirname "${0}")/../vidlogs"
 
 if [ "${2}" == "flv" ]; then
     VideoOutName="$(basename "${1%.*}.flv")"

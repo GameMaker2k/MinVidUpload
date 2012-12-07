@@ -4,7 +4,7 @@ scriptdir="$(dirname "${0}")"
 vidwidth="$(${scriptdir}/getwidth.sh "${1}")"
 vidheight="$(${scriptdir}/getheight.sh "${1}")"
 vidresolution="${vidwidth}x${vidheight}"
-ThumbNailDIR="$(realpath $(dirname "${0}")"/../thumbnail")"
+ThumbNailDIR="$(dirname "${0}")/../thumbnail"
 ThumbNamePNG="${ThumbNailDIR}/$(basename "${1%.*}.png")"
 ThumbNameGIF="${ThumbNailDIR}/$(basename "${1%.*}.gif")"
 if [ -z ${3} ]; then 
