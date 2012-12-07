@@ -67,6 +67,7 @@ if(!isset($_SERVER['HTTPS'])) {
 	$_SERVER["REQUEST_SCHEME"] = "http"; }
 if(isset($_SERVER['HTTPS'])) {
 	$_SERVER["REQUEST_SCHEME"] = "https"; } }
+$website_info['flash_player'] = "jwplayer";
 $website_info['sname'] = "MinVidUpload";
 $website_info['lname'] = "Minimalist Video Uploader";
 $website_info['author'] = "Kazuki Przyborowski";
@@ -75,12 +76,16 @@ $website_info['description'] = "MinVidUpload ( Minimalist Video Upload ) by Kazu
 $website_info['fname'] = " ".$website_info['sname']." ( ".$website_info['lname']." ) ";
 $website_info['main_url'] = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
 $website_info['jwplayer_url'] = $website_info['main_url']."/jwplayer";
+$website_info['jquery_url'] = $website_info['main_url']."/jquery";
+$website_info['flowplayer_url'] = $website_info['main_url']."/flowplayer";
 $website_info['thumbnail_url'] = $website_info['main_url']."/thumbnail";
 $website_info['upload_url'] = $website_info['main_url']."/uploads";
 $website_info['charset'] = "UTF-8";
 $website_info['language'] = "en";
 $website_info['main_dir'] = getcwd();
 $website_info['jwplayer_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."jwplayer";
+$website_info['jquery_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."jquery";
+$website_info['flowplayer_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."flowplayer";
 $website_info['shell_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."shell";
 $website_info['thumbnail_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."thumbnail";
 $website_info['upload_dir'] = $website_info['main_dir'].DIRECTORY_SEPARATOR."uploads";
@@ -163,9 +168,13 @@ function _format_bytes($a_bytes)
   <meta http-equiv="P3P" name="CP" content="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT" />
   <meta http-equiv="Expires" content="<?php echo gmdate("D, d M Y H:i:s")." GMT"; ?>" />
   <base href="<?php echo $website_info['main_url']; ?>/" />
-  <script type="text/javascript" src="<?php echo $website_info['jwplayer_url']; ?>/jquery.js"></script>
+  <script type="text/javascript" src="<?php echo $website_info['jquery_url']; ?>/jquery.js"></script>
+  <?php if($website_info['flash_player']=="jwplayer") { ?>
   <script type="text/javascript" src="<?php echo $website_info['jwplayer_url']; ?>/jwplayer.js"></script>
   <script type="text/javascript" src="<?php echo $website_info['jwplayer_url']; ?>/swfobject.js"></script>
+  <?php } if($website_info['flash_player']=="flowplayer") { ?>
+  <script type="text/javascript" src="<?php echo $website_info['flowplayer_url']; ?>/flowplayer.js"></script>
+  <?php } ?>
   <script type="text/javascript">
   <!--
   function getid(id) {
@@ -284,19 +293,53 @@ $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
 echo "<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">View ".htmlentities($filename, ENT_COMPAT | ENT_HTML401, "UTF-8", false)."</a>\n";
-?>
+if($website_info['flash_player']=="jwplayer") { ?>
 <div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>">Loading the player...</div>
 <script type="text/javascript">
+    <!--
     jwplayer("<?php echo str_replace("=", ":", base64_encode($filename)); ?>").setup({
         flashplayer: "<?php echo $website_info['jwplayer_url']; ?>/jwplayer.swf",
         file: "<?php echo $website_info['upload_url']."/".$filename; ?>",
         image: "<?php echo $website_info['thumbnail_url']."/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
-		title: "<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>",
         height: <?php echo $vidarray['height']; ?>,
         width: <?php echo $vidarray['width']."\n"; ?>
     });
+    //-->
 </script>
-<?php
+<?php } if($website_info['flash_player']=="flowplayer") { ?>
+<div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>" class="<?php echo str_replace("=", ":", base64_encode($filename)); ?>" style="width: <?php echo $vidarray['width']; ?>px; height: <?php echo $vidarray['height']; ?>px;"></div>
+<script type="text/javascript">
+    <!--
+  // Flowplayer installation with Flashembed parameters
+    flowplayer("<?php echo str_replace("=", ":", base64_encode($filename)); ?>", {
+ 
+        // our Flash component
+        src: "<?php echo $website_info['flowplayer_url']; ?>/flowplayer.swf",
+ 
+        // Flowplayer requires at least this version
+        version: [10, 1],
+ 
+        // older versions will see a custom message
+        onFail: function ()  {
+            document.getElementById("info").innerHTML =
+                "You need at least Flash version 10.1 to play the movie. " +
+                "Your version is " + this.getVersion();
+        }
+    },
+    // here is our third argument which is the Flowplayer configuration
+    {
+        playlist: [
+		"<?php echo $website_info['thumbnail_url']."/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
+        {
+	       autoPlay: false,
+		   scaling: 'fit',
+		   autoBuffering: false,
+	       "url": "<?php echo $website_info['upload_url']."/".$filename; ?>"
+        }]
+    });
+    //-->
+</script>
+<?php }
 echo "[<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?act=delete&amp;id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">Delete</a>] <a href=\"".$website_info['upload_url']."/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>">INFO:ATIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", fileatime($filename)); ?></a><?php echo "\n";
@@ -316,7 +359,7 @@ preg_match('/.*Duration: ([0-9:]+).*/', $vidarray['mininfo'], $tmp_duration);
 $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
-?>
+if($website_info['flash_player']=="jwplayer") { ?>
 <div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>">Loading the player...</div>
 <script type="text/javascript">
     <!--
@@ -324,14 +367,45 @@ $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimest
         flashplayer: "<?php echo $website_info['jwplayer_url']; ?>/jwplayer.swf",
         file: "<?php echo $website_info['upload_url']."/".$filename; ?>",
         image: "<?php echo $website_info['thumbnail_url']."/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
-		title: "<?php echo pathinfo($filename, PATHINFO_FILENAME); ?>",
         height: <?php echo $vidarray['height']; ?>,
         width: <?php echo $vidarray['width']."\n"; ?>
     });
-    swfobject.createCSS("#<?php echo str_replace("=", ":", base64_encode($filename)); ?>", "text-align: center; vertical-align: middle;");
     //-->
 </script>
-<?php
+<?php } if($website_info['flash_player']=="flowplayer") { ?>
+<div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>" class="<?php echo str_replace("=", ":", base64_encode($filename)); ?>" style="width: <?php echo $vidarray['width']; ?>px; height: <?php echo $vidarray['height']; ?>px;"></div>
+<script type="text/javascript">
+    <!--
+  // Flowplayer installation with Flashembed parameters
+    flowplayer("<?php echo str_replace("=", ":", base64_encode($filename)); ?>", {
+ 
+        // our Flash component
+        src: "<?php echo $website_info['flowplayer_url']; ?>/flowplayer.swf",
+ 
+        // Flowplayer requires at least this version
+        version: [10, 1],
+ 
+        // older versions will see a custom message
+        onFail: function ()  {
+            document.getElementById("info").innerHTML =
+                "You need at least Flash version 10.1 to play the movie. " +
+                "Your version is " + this.getVersion();
+        }
+    },
+    // here is our third argument which is the Flowplayer configuration
+    {
+        playlist: [
+		"<?php echo $website_info['thumbnail_url']."/".pathinfo($filename, PATHINFO_FILENAME).".png" ?>",
+        {
+	       autoPlay: false,
+		   scaling: 'fit',
+		   autoBuffering: false,
+	       "url": "<?php echo $website_info['upload_url']."/".$filename; ?>"
+        }]
+    });
+    //-->
+</script>
+<?php }
 echo "[<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?act=delete&amp;filename=".rawurlencode($filename)."\">Delete</a>] <a href=\"".$website_info['upload_url']."/".rawurlencode($filename)."\" title=\"".$filename."\">".$filename."</a>\n"; 
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>">INFO:CTIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", filectime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", filectime($filename)); ?></a><?php echo "\n";
 ?>[<a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>">INFO:ATIME</a>] <a href="javascript:<?php echo rawurlencode("alert('".gmdate("F d Y H:i:s", fileatime($filename))."');"); ?>"><?php echo gmdate("F d Y H:i:s", fileatime($filename)); ?></a><?php echo "\n";
