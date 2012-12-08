@@ -15,6 +15,6 @@ else
     echo ${timeoffset}
 fi
 if [ ! -f "${ThumbNamePNG}" ]; then
-    ffmpeg -sameq -ss ${timeoffset} -i "${1}" -vcodec png -vframes 1 -an -f rawvideo -s $vidresolution -y "$ThumbNamePNG"
+    ffmpeg -sameq -i "${1}" -ss ${timeoffset} -vframes 1 -vcodec png -an -f rawvideo -s $vidresolution -y "$ThumbNamePNG"
     # ffmpeg -sameq -itsoffset -${timeoffset} -vf fps=fps=1/60 -i "${1}" -vcodec gif -vframes 10 -an -f rawvideo -s $vidresolution -y "$ThumbNameGIF"
 fi
