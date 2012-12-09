@@ -282,8 +282,6 @@ if(count(glob("{*.flv,*.mp4}", GLOB_BRACE))>0&&glob("{*.flv,*.mp4}", GLOB_BRACE)
 	echo "\n<hr />\n"; }
 echo "\n<div style=\"white-space: pre-wrap;\">";
 foreach (glob("{*.flv,*.mp4}", GLOB_BRACE) as $filename) {
-if(!file_exists($website_info['thumbnail_dir'].DIRECTORY_SEPARATOR.pathinfo($filename, PATHINFO_FILENAME).".png")) { 
-shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."thumbnail.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\" \"".round($vidarray['timestamp'] / rand(4, 24), 2)."\""); }
 $vidarray['width']=trim(shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."getwidth.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\""));
 $vidarray['height']=trim(shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."getheight.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\""));
 $vidarray['resolution']=$vidarray['width']."x".$vidarray['height'];
@@ -292,6 +290,8 @@ preg_match('/.*Duration: ([0-9:]+).*/', $vidarray['mininfo'], $tmp_duration);
 $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
+if(!file_exists($website_info['thumbnail_dir'].DIRECTORY_SEPARATOR.pathinfo($filename, PATHINFO_FILENAME).".png")) { 
+shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."thumbnail.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\" \"".round($vidarray['timestamp'] / rand(4, 24), 2)."\""); }
 echo "<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?id=".urlencode(str_replace("=", ":", base64_encode($filename)))."\">View ".htmlentities($filename, ENT_COMPAT | ENT_HTML401, "UTF-8", false)."</a>\n";
 if($website_info['flash_player']=="jwplayer") { ?>
 <div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>">Loading the player...</div>
@@ -349,8 +349,6 @@ echo "[<a href=\"".$website_info['main_url']."/".$website_info['main_file']."?ac
 echo "\n<div style=\"width: 100%; height: 100%; vertical-align: middle; white-space: pre-wrap;\">";
 $filename = base64_decode(str_replace(":", "=", $_GET['id']));
 chdir($website_info['upload_dir'].DIRECTORY_SEPARATOR);
-if(!file_exists($website_info['thumbnail_dir'].DIRECTORY_SEPARATOR.pathinfo($filename, PATHINFO_FILENAME).".png")) { 
-shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."thumbnail.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\" \"".round($vidarray['timestamp'] / rand(4, 24), 2)."\""); }
 $vidarray['width']=trim(shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."getwidth.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\""));
 $vidarray['height']=trim(shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."getheight.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\""));
 $vidarray['resolution']=$vidarray['width']."x".$vidarray['height'];
@@ -359,6 +357,8 @@ preg_match('/.*Duration: ([0-9:]+).*/', $vidarray['mininfo'], $tmp_duration);
 $vidarray['duration']=$tmp_duration[1];
 preg_match('/([0-9]{2}):([0-9]{2}):([0-9]{2})/', $vidarray['duration'], $gettimestamp);
 $vidarray['timestamp']=($gettimestamp[1]*3600)+($gettimestamp[2]*60)+($gettimestamp[3]*1);
+if(!file_exists($website_info['thumbnail_dir'].DIRECTORY_SEPARATOR.pathinfo($filename, PATHINFO_FILENAME).".png")) { 
+shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."thumbnail.sh\" \"".$website_info['upload_dir'].DIRECTORY_SEPARATOR.$filename."\" \"".round($vidarray['timestamp'] / rand(4, 24), 2)."\""); }
 if($website_info['flash_player']=="jwplayer") { ?>
 <div id="<?php echo str_replace("=", ":", base64_encode($filename)); ?>">Loading the player...</div>
 <script type="text/javascript">
