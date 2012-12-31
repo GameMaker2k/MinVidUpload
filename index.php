@@ -278,6 +278,12 @@ shell_exec($shell." \"".$website_info['shell_dir'].DIRECTORY_SEPARATOR."convert.
 @clearstatcache(); } 
 ++$i; }
 chdir($website_info['upload_dir'].DIRECTORY_SEPARATOR);
+foreach (glob("*") as $filename) {
+	$fileinfo = pathinfo($filename);
+    if (preg_match("/(mp4|flv)/i", $fileinfo['extension'])&&
+		($fileinfo['extension']!="mp4"&&$fileinfo['extension']!="flv")) {
+	$newfilename = $fileinfo['filename'].".".strtolower($fileinfo['extension']); 
+	rename($filename, $newfilename); } }
 if(count(glob("{*.flv,*.mp4}", GLOB_BRACE))>0&&glob("{*.flv,*.mp4}", GLOB_BRACE)==!false) { 
 	echo "\n<hr />\n"; }
 echo "\n<div style=\"white-space: pre-wrap;\">";
